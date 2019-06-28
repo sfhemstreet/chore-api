@@ -26,6 +26,22 @@ app.get('/', (req,res) => {
     res.send('Working');
 });
 
+// SIGN IN
+app.post('/signin', (req,res) => {
+    
+    res.json('SIGNIN BACKEND')
+})
+
+// REGISTER
+app.post('/register', (req,res) => {
+    
+    res.json('register BACKEND')
+})
+
+
+
+
+
 app.listen(process.env.PORT || 3000, () => {
     console.log(`App running on port ${process.env.PORT}`);
 });
