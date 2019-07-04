@@ -6,7 +6,7 @@ const handleRegister = (req,res,db,bcrypt) => {
     // INSERT NEW USER INFO
     bcrypt.hash(password, 10, (error, hashedPW) => {
         if(error){
-            return res.status(400).json('Register Error')
+            return res.status(400).json('Hash')
         }
         db.transaction(trx => {
             trx.insert({
@@ -17,7 +17,7 @@ const handleRegister = (req,res,db,bcrypt) => {
             .returning('login_id')
             .then(loginID => {
                 return trx('users')
-                    .returning('email')
+                    .returning('*')
                     .insert({
                         user_id: loginID[0],
                         email: email,
@@ -25,6 +25,7 @@ const handleRegister = (req,res,db,bcrypt) => {
                         joined: new Date() 
                     })
                     .then(user => {
+                        console.log(user[0])
                         res.json(user[0]);
                     }) 
                     .catch(error => res.status(400).json('REGISTER ERROR'))
@@ -33,16 +34,9 @@ const handleRegister = (req,res,db,bcrypt) => {
             .catch(trx.rollback)
         })
         .catch(error => {
-            res.status(400).json('Unable to register')
-        })
-        
-        
-        
-            
+            res.status(400).json('Duplicate Email')
+        })       
     })
-
-    
-    
 }
 
 module.exports = {

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const knex = require('knex');
+const jwt = require('jsonwebtoken')
 
 const register = require('./controllers/register.js');
 const signin = require('./controllers/signin.js');
@@ -19,24 +20,24 @@ const db = knex({
       }
 });
 
+
+
 const app = express();
 
 // middleware
 app.use(bodyParser.json());
 app.use(cors());
 
-// ROOT
-/*
-app.get('/', (req,res) => {
-    res.send('Working');
-});
-*/
+// change to where frontend is hosted !
+const corsOptions = {
+    origin: 'http://localhost:3002',
+  }
 
 // SIGN IN 
-app.post('/signin', (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
+app.post('/signin', cors(corsOptions), (req,res) => {signin.handleSignin(req,res,db,bcrypt,jwt)});
 
 // REGISTER
-app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
+app.post('/register',cors(corsOptions), (req,res) => {register.handleRegister(req,res,db,bcrypt)});
 /*
 // PROFILE
 app.get('/profile/:id', (req,res) => { profile.handleProfileGet(req,res,db) });
