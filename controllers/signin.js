@@ -2,7 +2,7 @@
 const key = require('../key');
 
 // HANDLE USER SIGN IN
-const handleSignin = (req,res,db, bcrypt,jwt) => {
+const handleSignin = (req,res,db, bcrypt) => {
     const {email, password} = req.body;
     // DO MORE CHECKS HERE
     if(!email || !password){
@@ -19,22 +19,11 @@ const handleSignin = (req,res,db, bcrypt,jwt) => {
                     return db.select('*').from('users as u')
                         .where('u.email','=',email)
                         .then(user => {
-                            //console.log(user[0])
-                            // create jwt for user 
-                            jwt.sign({
-                                userID: user[0].user_id
-                            }, key.key, {expiresIn: '1 day', issuer: 'chore'}, (error, token) => {
-                                if(error){
-                                    console.log(error)
-                                    res.status(400).json('Token error');
-                                }
-                                else{
-                                    res.json({
-                                        token: token,
-                                        userData: user[0]
-                                    });
-                                }
-                            })
+                            //give user session id 
+                            req.session.sid = user[0].user_id
+                            res.json({
+                                userData: user[0]
+                            });  
                         })
                         .catch(error => res.status(400).json('Unable to get user'))
                 }
