@@ -2,7 +2,7 @@
 const key = require('../key');
 
 // HANDLE USER SIGN IN
-const handleSignin = (req,res,db, bcrypt) => {
+const handleSignin = (req,res,db, bcrypt, session) => {
     const {email, password} = req.body;
     // DO MORE CHECKS HERE
     if(!email || !password){
@@ -16,13 +16,14 @@ const handleSignin = (req,res,db, bcrypt) => {
             .then(pass => {   
                 if(pass){
                     // pw matched, get user info
-                    return db.select('*').from('users as u')
-                        .where('u.email','=',email)
-                        .then(user => {
-                            //give user session id 
-                            req.session.sid = user[0].user_id
+                    return db.select('email', 'score', 'user_name', 'user_id').from('users')
+                        .where('users.email','=',email)
+                        .then(userInfo => {
+                            const {email, score, user_name, user_id} = userInfo[0];
+                            const user = {user_name, email, score};
+                            req.session.user_id = user_id;
                             res.json({
-                                userData: user[0]
+                                userData: user
                             });  
                         })
                         .catch(error => res.status(400).json('Unable to get user'))
@@ -36,8 +37,9 @@ const handleSignin = (req,res,db, bcrypt) => {
         })
         .catch(error => {
             console.log(error)
-            res.status(400).json('Wrong Credentials')}
-        );
+            res.status(400).json('Wrong Credentials')
+        }
+    );
 }
 
 module.exports = {
