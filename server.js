@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const knex = require('knex');
-const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(session);
 const parseurl = require('parseurl');
@@ -11,19 +10,33 @@ const parseurl = require('parseurl');
 
 const register = require('./controllers/register.js');
 const signin = require('./controllers/signin.js');
-//const profile = require('./controllers/profile.js');
+const profile = require('./controllers/profile.js');
 
 const ONE_HOUR = 2 * 60 * 60 * 1000;
 
 const {
     PORT = 3000,
     NODE_ENV = 'dev',
-    SESS_NAME = 'sid',
     SESS_SECRET = 'keepitsecretkeepitsafe',
     SESS_LIFETIME = ONE_HOUR
 } = process.env;
 
 const IN_PROD = NODE_ENV === 'prod';
+
+
+
+
+const app = express();
+
+// middleware
+app.use(bodyParser.json());
+app.use(cors());
+
+// CORS change to where frontend is hosted !
+const corsOptions = {
+    //credentials: true,
+    //origin: 'http://localhost:3002',
+}
 
 // setup database
 const db = knex({
@@ -36,48 +49,50 @@ const db = knex({
       }
 });
 // store for session 
-const store = new KnexSessionStore({
+const pgstore = new KnexSessionStore({
     knex: db,
     tablename: 'user_sessions'
-})
-
-
-const app = express();
-
-// middleware
-app.use(bodyParser.json());
-app.use(cors());
+});
 
 app.use(session({
-    store: store,
-    name: SESS_NAME,
+    store: pgstore,
+    name: 'sid',
     secret: SESS_SECRET,
     saveUninitialized: false,
     resave: false,
     cookie: {
         path: "/",
         maxAge: SESS_LIFETIME,
-        secure: IN_PROD,
+        secure: false,
+        sameSite: false,
         httpOnly: false
     },
-    name: "id",
     
 }));
 
-// change to where frontend is hosted !
-const corsOptions = {
-    origin: 'http://localhost:3002',
-  }
+
+
+
+/*
+// check if cookie is saved in browswer but not in session
+app.use((req, res, next) => {
+    if (req.cookies.sid && !req.session.sid) {
+        res.clearCookie('sid');        
+    }
+    next();
+});
+*/
+
 
 // SIGN IN 
 app.post('/signin', cors(corsOptions), (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
 // REGISTER
 app.post('/register',cors(corsOptions), (req,res) => {register.handleRegister(req,res,db,bcrypt)});
-/*
+
 // PROFILE
-app.get('/profile/:id', (req,res) => { profile.handleProfileGet(req,res,db) });
-*/
+app.get('/getallgroups', cors(corsOptions), (req,res) => { profile.handleGetAllGroups(req,res,db)});
+
 
 
 
