@@ -28,16 +28,6 @@ const IN_PROD = NODE_ENV === 'prod';
 
 const app = express();
 
-// middleware
-app.use(bodyParser.json());
-app.use(cors());
-
-// CORS change to where frontend is hosted !
-const corsOptions = {
-    //credentials: true,
-    //origin: 'http://localhost:3002',
-}
-
 // setup database
 const db = knex({
     client: 'pg',
@@ -66,32 +56,30 @@ app.use(session({
         secure: false,
         sameSite: false,
         httpOnly: false
-    },
-    
+    }
 }));
 
+// middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 
-
-/*
-// check if cookie is saved in browswer but not in session
-app.use((req, res, next) => {
-    if (req.cookies.sid && !req.session.sid) {
-        res.clearCookie('sid');        
-    }
-    next();
-});
-*/
-
+// CORS change to where frontend is hosted !
+const corsOptions = {
+    credentials: true,
+    origin: 'http://localhost:3002'
+}
+app.use(cors(corsOptions));
 
 // SIGN IN 
-app.post('/signin', cors(corsOptions), (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
+
+app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
 // REGISTER
-app.post('/register',cors(corsOptions), (req,res) => {register.handleRegister(req,res,db,bcrypt)});
+app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
 
 // PROFILE
-app.get('/getallgroups', cors(corsOptions), (req,res) => { profile.handleGetAllGroups(req,res,db)});
+app.get('/getallgroups',  (req,res) => {profile.handleGetAllGroups(req,res,db)});
 
 
 
@@ -103,3 +91,9 @@ app.listen(PORT, () => {
 
 
 // to delete user, delete from login table
+
+
+
+module.exports = {
+    app
+}
