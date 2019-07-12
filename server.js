@@ -79,7 +79,7 @@ app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
 
 // PROFILE
-app.get('/getallgroups',  (req,res) => {profile.handleGetAllGroups(req,res,db)});
+app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 
 
 
