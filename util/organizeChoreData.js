@@ -9,10 +9,22 @@ const organizeChoreData = (rawData, userID) => {
     //object with all three
     let organizedData = {};
 
+    // only show completed chores for a week after they are done
+    const now = Date.now();
+    const WEEK = 604800000;
+
     for(let x = 0; x < rawData.length; x++){
         let data = rawData[x];
-        const {assign_name, assign_email, chore_name, assign_date, due_date, complete_date, description, group_name} = data;
-        const sendData = {assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, group_name};
+        const {chore_id, assign_name, assign_email, chore_name, assign_date, due_date, complete_date, description, group_name, created_by_email} = data;
+        const sendData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, group_name, created_by_email};
+        //check to see if chore was completed more than a week ago
+        if(complete_date !== null){
+            const com_date = new Date(complete_date).getTime();
+            if(now - com_date > WEEK){
+                // its over a week old dont send it
+                continue;
+            } 
+        }
         // check if its the users chore
         if(data.user_id === userID){
             userChores.push(sendData)
