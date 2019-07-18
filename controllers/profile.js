@@ -5,12 +5,11 @@ const getChores = (req,res,db) => {
     if(req.session.user_id){
         // get all chores from groups associated with this user  
         return  db.select(
-            // dont send these too user
             'users.user_id',
             'choregroup.created_by',
-            // only used for organizing data
             'users.user_name AS assign_name', 
             'users.email AS assign_email',
+            'chore.chore_id',
             'chore.chore_name',
             'chore.assign_date', 
             'chore.due_date', 
@@ -31,7 +30,7 @@ const getChores = (req,res,db) => {
             )
             .then(data => {
                 const organizedData = organizeChoreData(data, req.session.user_id);
-                console.log(organizedData);
+                //console.log(organizedData);
                 res.json({
                     chores: organizedData
                 })  
@@ -46,6 +45,26 @@ const getChores = (req,res,db) => {
     }
 }
 
+const submitChore = (req,res,db) => {
+    if(req.session.user_id){
+        db('chore')
+            .where('chore_id', '=', req.body.choreID)
+            .update({complete_date: 'now()'})
+            .then(() => {
+                console.log('success')
+                res.status(200).json('Chore Submitted');
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(400).json('error err');
+            })
+    }   
+    else{
+        res.status(403).json('MUST LOGIN')
+    }
+}
+
 module.exports = {
-    getChores: getChores
+    getChores: getChores,
+    submitChore: submitChore
 }

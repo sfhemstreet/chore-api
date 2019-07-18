@@ -53,9 +53,9 @@ app.use(session({
     cookie: {
         path: "/",
         maxAge: SESS_LIFETIME,
-        secure: false,
+        secure: NODE_ENV === 'production' ? true : false,
         sameSite: false,
-        httpOnly: false
+        httpOnly: true
     }
 }));
 
@@ -80,7 +80,7 @@ app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)})
 
 // PROFILE
 app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
-
+app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 
 
 
