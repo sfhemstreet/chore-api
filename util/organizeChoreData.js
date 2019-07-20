@@ -5,7 +5,7 @@ const organizeChoreData = (rawData, userID) => {
     // groups
     let groups = {};
     // created_groups 
-    let createdGroups = {};
+    let createdGroups = [];
     //object with all three
     let organizedData = {};
 
@@ -15,8 +15,10 @@ const organizeChoreData = (rawData, userID) => {
 
     for(let x = 0; x < rawData.length; x++){
         let data = rawData[x];
-        const {chore_id, assign_name, assign_email, chore_name, assign_date, due_date, complete_date, description, group_name, created_by_email} = data;
-        const sendData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, group_name, created_by_email};
+        const {chore_id, assign_name, assign_email, chore_name, assign_date, due_date, complete_date, description, group_name, created_by_email, group_id, score} = data;
+        const g_name = group_name.replace(' ','_');
+        const userData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, group_name, created_by_email, group_id, score};
+        const groupData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, g_name, created_by_email, group_id, score};
         //check to see if chore was completed more than a week ago
         if(complete_date !== null){
             const com_date = new Date(complete_date).getTime();
@@ -27,28 +29,36 @@ const organizeChoreData = (rawData, userID) => {
         }
         // check if its the users chore
         if(data.user_id === userID){
-            userChores.push(sendData)
+            userChores.push(userData)
         }
         // check if they created the group
         if(data.created_by === userID){
-            if(createdGroups[group_name]){
-                createdGroups[group_name].push(sendData)
-            }
-            else{
-                createdGroups[group_name] = [];
-                createdGroups[group_name].push(sendData);
+            // only add if its not added to array yet
+            if(!createdGroups.includes(group_name)){
+                createdGroups.push(group_name)    
             }
         }
         // organize into groups
-        if(groups[group_name]){
-            groups[group_name].push(sendData)
+        if(groups[g_name]){
+            if(groups[g_name][assign_name]){
+                groups[g_name][assign_name].push(groupData)
+            }
+            else{
+                groups[g_name][assign_name] = [];
+                groups[g_name][assign_name].push(groupData)
+            }
         }
         else{
-            groups[group_name] = [];
-            groups[group_name].push(sendData);
+            groups[g_name] = {};
+            groups[g_name][assign_name] = [] 
+            groups[g_name][assign_name].push(groupData);
         }
+        
     }
-    organizedData = {userChores,groups,createdGroups};
+    
+    console.log(groups)
+     
+    organizedData = {userChores, groups,createdGroups};
 
     return organizedData;
 }
