@@ -4,7 +4,7 @@ const handleRegister = (req,res,db,bcrypt) => {
         return res.status(400).json('Invalid Register Info')
     }
     // INSERT NEW USER INFO
-    bcrypt.hash(password, 10, (error, hashedPW) => {
+    bcrypt.hash(password, 15, (error, hashedPW) => {
         if(error){
             return res.status(400).json('Hash')
         }

@@ -5,15 +5,16 @@ const cors = require('cors');
 const knex = require('knex');
 const session = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(session);
-const parseurl = require('parseurl');
-
-
+// Modules
 const register = require('./controllers/register.js');
 const signin = require('./controllers/signin.js');
 const profile = require('./controllers/profile.js');
 
+// Constants
 const ONE_HOUR = 2 * 60 * 60 * 1000;
 
+
+// Process.env
 const {
     PORT = 3000,
     NODE_ENV = 'dev',
@@ -22,9 +23,6 @@ const {
 } = process.env;
 
 const IN_PROD = NODE_ENV === 'prod';
-
-
-
 
 const app = express();
 
@@ -43,7 +41,7 @@ const pgstore = new KnexSessionStore({
     knex: db,
     tablename: 'user_sessions'
 });
-
+// Set up express-session
 app.use(session({
     store: pgstore,
     name: 'sid',
@@ -53,26 +51,25 @@ app.use(session({
     cookie: {
         path: "/",
         maxAge: SESS_LIFETIME,
-        secure: NODE_ENV === 'production' ? true : false,
+        secure: IN_PROD,
         sameSite: false,
         httpOnly: true
     }
 }));
 
-// middleware
+// body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
-// CORS change to where frontend is hosted !
+// CORS middleware ->>> change to where frontend is hosted !
 const corsOptions = {
     credentials: true,
-    origin: 'http://localhost:3002'
+    origin: 'http://localhost:3001'
 }
 app.use(cors(corsOptions));
 
+// ROUTES
 // SIGN IN 
-
 app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
 // REGISTER
@@ -83,15 +80,24 @@ app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 
 
-
-
+// Listen
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
 });
 
 
-// to delete user, delete from login table
-
+/* NOTES */
+/*
+POSTGRES
+- to delete user, delete from login table
+- move sql queries to seperate files
+SESSIONS
+- change name of session id
+- test multiple users at once
+- create route to authentic user actions
+MESSAGING
+-
+*/
 
 
 module.exports = {
