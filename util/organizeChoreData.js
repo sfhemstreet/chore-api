@@ -29,7 +29,10 @@ const organizeChoreData = (rawData, userID) => {
         }
         // check if its the users chore
         if(data.user_id === userID){
-            userChores.push(userData)
+            if(chore_id !== null){
+                userChores.push(userData)    
+            }
+            
         }
         // check if they created the group
         if(data.created_by === userID){
