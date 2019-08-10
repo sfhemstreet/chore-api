@@ -9,6 +9,7 @@ const KnexSessionStore = require('connect-session-knex')(session);
 const register = require('./controllers/register.js');
 const signin = require('./controllers/signin.js');
 const profile = require('./controllers/profile.js');
+const groups = require('./controllers/groups.js');
 
 // Constants
 const ONE_HOUR = 2 * 60 * 60 * 1000;
@@ -79,8 +80,12 @@ app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)})
 app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 
+// CREATE GROUP
+app.post('/creategroup', (req,res) => {groups.createGroup(req,res,db,bcrypt)});
 
-// Listen
+
+
+// Listen 
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
 });
@@ -96,7 +101,7 @@ SESSIONS
 - test multiple users at once
 - create route to authentic user actions
 MESSAGING
--
+- integrate socket.io
 */
 
 
