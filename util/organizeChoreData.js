@@ -31,8 +31,7 @@ const organizeChoreData = (rawData, userID) => {
         if(data.user_id === userID){
             if(chore_id !== null){
                 userChores.push(userData)    
-            }
-            
+            }  
         }
         // check if they created the group
         if(data.created_by === userID){
@@ -55,13 +54,9 @@ const organizeChoreData = (rawData, userID) => {
             groups[g_name] = {};
             groups[g_name][assign_name] = [] 
             groups[g_name][assign_name].push(groupData);
-        }
-        
+        } 
     }
-    
-    console.log(groups)
-     
-    organizedData = {userChores, groups,createdGroups};
+    organizedData = { userChores, groups, createdGroups };
 
     return organizedData;
 }

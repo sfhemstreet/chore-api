@@ -1,42 +1,41 @@
 const {createTempPassword} = require('./createTempPassword')
 
-const createUser = (email,db,bcrypt) => {
-    const tempPassword = createTempPassword();
-    const tempUsername = email.slice(0, email.indexOf('@'));
-
-    return new Promise((res, rej) => {
+const createUser = async(email,db,bcrypt) => {
+    try{
+        const tempPassword = createTempPassword();
+        const tempUsername = email.slice(0, email.indexOf('@'));
+        //sendNewUserEmail(tempUsername, tempPassword);
         bcrypt.hash(tempPassword, 15, (error, hashedPW) => {
             if(error){
                 return console.log(error)
             }
-            db.transaction(trx => {
-                trx.insert({
-                    email: email,
-                    hash: hashedPW
-                })
-                .into('login')
-                .returning('login_id')
-                .then(loginID => {
-                    trx('users')
-                    .insert({
-                        user_id: loginID[0],
-                        email: email,
-                        user_name: tempUsername,
-                        joined: new Date() 
-                    })
-                    .returning('user_id')
-                    .then(userID => {
-                        console.log(userID);
-                        res(userID);
-                    }) 
-                    .catch(error => console.log(error))
-                })
-                .then(trx.commit)
-                .catch(trx.rollback)
+            db.insert({
+                email: email,
+                hash: hashedPW
             })
-            .catch(error => console.log(error)) 
-        })          
-    })
+            .into('login')
+            .returning('login_id')
+            .then(loginID => {
+                db.insert({
+                    user_id: loginID[0],
+                    email: email,
+                    user_name: tempUsername,
+                    joined: new Date() 
+                })
+                .into('users')
+                .returning('user_id')
+                .then(userID => {
+                    console.log(userID[0]);
+                    return userID[0];
+                }) 
+                .catch(error => console.log(error))
+            })
+            .catch(err => console.log(err));
+        })        
+    }
+    catch(error){
+        console.log(error);
+    }
     
 }
 
