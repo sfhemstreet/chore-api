@@ -17,7 +17,7 @@ const ONE_HOUR = 2 * 60 * 60 * 1000;
 
 // Process.env
 const {
-    PORT = 3000,
+    PORT = 4000,
     NODE_ENV = 'dev',
     SESS_SECRET = 'keepitsecretkeepitsafe',
     SESS_LIFETIME = ONE_HOUR
@@ -65,7 +65,7 @@ app.use(bodyParser.json());
 // CORS middleware ->>> change to where frontend is hosted !
 const corsOptions = {
     credentials: true,
-    origin: 'http://localhost:3001'
+    origin: 'http://localhost:3000'
 }
 app.use(cors(corsOptions));
 
@@ -81,7 +81,7 @@ app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 
 // CREATE GROUP
-app.post('/creategroup', (req,res) => {groups.createGroup(req,res,db,bcrypt)});
+app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db,bcrypt)});
 
 
 
