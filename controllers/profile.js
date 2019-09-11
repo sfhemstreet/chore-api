@@ -5,34 +5,23 @@ const getChores = (req,res,db) => {
     if(req.session.user_id){
         // get all chores from groups associated with this user  
         return  db.select(
-            'chore.chore_name',
-            'chore.chore_id',
-            'chore.description',
-            'chore.assign_date',
-            'chore.due_date',
-            'chore.complete_date',
-            'users.user_name AS assign_name', 
-            'users.email AS assign_email',
-            'users.user_id',
-            'users.score',
-            'choregroup.group_name',
-            'choregroup.group_id',
-            'choregroup.created_by',
-            'choregroup.created_by_email')
+            'chores.chore_name','chores.chore_id','chores.description','chores.assign_date','chores.due_date','chores.complete_date',
+            'users.user_name AS assign_name', 'users.email AS assign_email','users.user_id','users.score',
+            'groups.group_name','groups.group_id','groups.created_by','groups.created_by_email')
             .from('users')
-            .join('users_in_groups','users_in_groups.user_id','=','users.user_id')
-            .join('choregroup', function(){
-                this.on('users_in_groups.group_id','=','choregroup.group_id')
-                .onIn('choregroup.group_id',
+            .join('users_in_groups','users_in_groups.user_email','=','assign_email')
+            .join('groups', function(){
+                this.on('users_in_groups.group_id','=','groups.group_id')
+                .onIn('groups.group_id',
                     db.select('users_in_groups.group_id')
                     .from('users_in_groups')
                     .where('users_in_groups.user_id','=',req.session.user_id))
             })
-            .leftJoin('chore', function() {
-                this.on('users.user_id','=','chore.assign_id').andOn('choregroup.group_id','=','chore.group_id')
+            .leftJoin('chores', function() {
+                this.on('assign_email','=','chores.assign_emal').andOn('groups.group_id','=','chores.group_id')
             })
-            .where('users.user_id', 'IN', 
-                db.select('users_in_groups.user_id')
+            .where('assign_email', 'IN', 
+                db.select('users_in_groups.user_email')
                 .from('users_in_groups')
                 .where('users_in_groups.group_id','IN',
                     db.select('users_in_groups.group_id')
@@ -42,7 +31,6 @@ const getChores = (req,res,db) => {
             )
             .then(data => {
                 const organizedData = organizeChoreData(data, req.session.user_id);
-                console.log(organizedData);
                 res.json({
                     chores: organizedData.userChores,
                     groups: organizedData.groups,
@@ -61,11 +49,10 @@ const getChores = (req,res,db) => {
 
 const submitChore = (req,res,db) => {
     if(req.session.user_id){
-        db('chore')
+        db('chores')
             .where('chore_id', '=', req.body.choreID)
             .update({complete_date: 'now()'})
             .then(() => {
-                //console.log('success')
                 res.status(200).json('Chore Submitted');
             })
             .catch(err => {
