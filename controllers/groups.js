@@ -10,7 +10,7 @@ const createGroup = async (req,res,db,bcrypt) => {
             console.log('$$$ users',users)
             console.log('$$$ chores',chores)
             // check if group exists already
-            db.select('group_name').from('choregroup')
+            db.select('group_name').from('groups')
             .where('created_by','=',req.session.user_id).andWhere('group_name','=',groupName)
             .then(result => {
                 if(result[0]){
@@ -33,7 +33,7 @@ const createGroup = async (req,res,db,bcrypt) => {
                             created_by_email : users_email[0].email,
                             created_date : todaysDate()
                         }) 
-                        .into('choregroup').returning('group_id')
+                        .into('groups').returning('group_id')
                         .then(groupID => {
                             console.log('2 new groupID', groupID);
                             // check if users are already in DB (check users table)
@@ -144,7 +144,7 @@ const createGroup = async (req,res,db,bcrypt) => {
                                         assign_id : emailsWithIds[chores[c].assigned],
                                         description : chores[c].description
                                     })
-                                    .into('chore').then().catch(err => console.log('error at chore insert', err))
+                                    .into('chores').then().catch(err => console.log('error at chore insert', err))
                                 } 
                                 // if successful
                                 res.json('Group Created')
