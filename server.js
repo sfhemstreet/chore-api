@@ -12,7 +12,7 @@ const profile = require('./controllers/profile.js');
 const groups = require('./controllers/groups.js');
 
 // Constants
-const ONE_HOUR = 2 * 60 * 60 * 1000;
+const TWO_HOURS = 2 * 60 * 60 * 1000;
 
 
 // Process.env
@@ -20,7 +20,7 @@ const {
     PORT = 4000,
     NODE_ENV = 'dev',
     SESS_SECRET = 'keepitsecretkeepitsafe',
-    SESS_LIFETIME = ONE_HOUR
+    SESS_LIFETIME = TWO_HOURS
 } = process.env;
 
 const IN_PROD = NODE_ENV === 'prod';
