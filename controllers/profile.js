@@ -3,62 +3,88 @@ const {organizeChoreData} = require('../util/organizeChoreData.js');
 const getChores = (req,res,db) => {
     // see if user has session
     if(req.session.user_id){
-        // get all chores from groups associated with this user  
-        return  db.select(
-            'chores.chore_name','chores.chore_id','chores.description','chores.assign_date','chores.due_date','chores.complete_date',
-            'users.user_name AS assign_name', 'users.email AS assign_email','users.user_id','users.score',
-            'groups.group_name','groups.group_id','groups.created_by','groups.created_by_email')
+        // get all chores from all groups associated with this user  
+        return  db.select('users.email')
             .from('users')
-            .join('users_in_groups','users_in_groups.user_email','=','assign_email')
-            .join('groups', function(){
-                this.on('users_in_groups.group_id','=','groups.group_id')
-                .onIn('groups.group_id',
-                    db.select('users_in_groups.group_id')
+            .where('users.user_id','=',req.session.user_id)
+            .then(email => {
+                const THIS_USERS_EMAIL = email[0].email;
+                db.select(
+                // chore NAME ID DESCRIPTION ASSIGN_DATE DUE_DATE COMPLETE_DATE
+                'chores.chore_name','chores.chore_id','chores.description','chores.assign_date','chores.due_date','chores.complete_date',
+                // user NAME EMAIL SCORE
+                'users.user_name AS assign_name', 'users.email AS assign_email','users.score',
+                // group NAME ID CREATED_BY_ID CREATED_BY_EMAIL
+                'groups.group_name','groups.group_id','groups.created_by','groups.created_by_email',
+                'users_in_groups.auth')
+                .from('users')
+                .join('users_in_groups','users_in_groups.user_email','=','users.email')
+                .join('groups', function(){
+                    this.on('users_in_groups.group_id','=','groups.group_id')
+                    .onIn('groups.group_id',
+                        db.select('users_in_groups.group_id')
+                        .from('users_in_groups')
+                        .where('users_in_groups.user_email','=',THIS_USERS_EMAIL)
+                    )
+                })
+                .leftJoin('chores', function() {
+                    this.on('users.email','=','chores.assign_email').andOn('groups.group_id','=','chores.group_id')
+                })
+                .where('users.email', 'IN', 
+                    db.select('users_in_groups.user_email')
                     .from('users_in_groups')
-                    .where('users_in_groups.user_id','=',req.session.user_id))
-            })
-            .leftJoin('chores', function() {
-                this.on('assign_email','=','chores.assign_emal').andOn('groups.group_id','=','chores.group_id')
-            })
-            .where('assign_email', 'IN', 
-                db.select('users_in_groups.user_email')
-                .from('users_in_groups')
-                .where('users_in_groups.group_id','IN',
-                    db.select('users_in_groups.group_id')
-                    .from('users_in_groups')
-                    .where('users_in_groups.user_id','=',req.session.user_id)
+                    .where('users_in_groups.group_id','IN',
+                        db.select('users_in_groups.group_id')
+                        .from('users_in_groups')
+                        .where('users_in_groups.user_email','=',THIS_USERS_EMAIL)
+                    )
                 )
-            )
-            .then(data => {
-                const organizedData = organizeChoreData(data, req.session.user_id);
-                res.json({
-                    chores: organizedData.userChores,
-                    groups: organizedData.groups,
-                    createdGroups: organizedData.createdGroups
-                })  
+                .then(data => {
+                    const organizedData = organizeChoreData(data, THIS_USERS_EMAIL);
+                    res.json({
+                        // this users chores
+                        chores: organizedData.userChores,
+                        // data from all groups user is in 
+                        groups: organizedData.groups,
+                        // if user created group they get special permissions
+                        createdGroups: organizedData.createdGroups,
+                        // stores if user can add chores to group
+                        auth: organizedData.authorization
+                    })  
+                })
+                .catch(error => {
+                    console.log(error)
+                    res.status(400).json('get chores error')
+                });   
             })
-            .catch(error => {
-                console.log(error)
-                res.status(400).json('session problem')
-            });   
     }
     else{
         res.status(403).json('MUST LOGIN')
     }
 }
 
+// user submits chore, update complete_date in DB, increase user score 
 const submitChore = (req,res,db) => {
     if(req.session.user_id){
         db('chores')
-            .where('chore_id', '=', req.body.choreID)
-            .update({complete_date: 'now()'})
+        .where('chore_id', '=', req.body.choreID)
+        .update({complete_date: 'now()'})
+        .then(() => {
+            db('users')
+            .where('user_id','=',req.session.user_id)
+            .increment('score',1)
             .then(() => {
                 res.status(200).json('Chore Submitted');
             })
             .catch(err => {
-                console.log(err);
-                res.status(400).json('error err');
+                console.log('error at update score',err);
+                res.status(400).json('error');
             })
+        })
+        .catch(err => {
+            console.log('error at update complete date',err);
+            res.status(400).json('error');
+        })
     }   
     else{
         res.status(403).json('MUST LOGIN')
@@ -66,6 +92,6 @@ const submitChore = (req,res,db) => {
 }
 
 module.exports = {
-    getChores: getChores,
-    submitChore: submitChore
+    getChores,
+    submitChore
 }
