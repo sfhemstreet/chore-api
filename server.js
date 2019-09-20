@@ -76,19 +76,22 @@ app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 // REGISTER
 app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
 
-// PROFILE
+// PROFILE - user specific 
 app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 
-// CREATE GROUP
-app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db,bcrypt)});
-
-
+// GROUP - group specific 
+app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db)});
+app.post('/addchores', (req,res) => {groups.addChores(req,res,db)});
+app.delete('/deletegroup', (req,res) => {groups.deleteGroup(req,res,db)});
+app.patch('/editgroup', (req,res) => {groups.editGroup(req,res,db)});
 
 // Listen 
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
 });
+
+
 
 
 /* NOTES */
