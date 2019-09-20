@@ -41,8 +41,8 @@ const organizeChoreData = (rawData, email) => {
         // check if they created the group
         if(created_by_email === email){
             // only add if its not added to array yet
-            if(!createdGroups.includes(group_name)){
-                createdGroups.push(group_name)    
+            if(!createdGroups.includes(group_id)){
+                createdGroups.push(group_id);    
             }
         }
         // organize into groups

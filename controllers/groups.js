@@ -66,7 +66,7 @@ const createGroup = async (req,res,db) => {
 
 const addChores = (req,res,db) => {
     if(req.session.user_id){
-        const {chores, groupID} = req.body;
+        const {groupID, chores} = req.body;
         // insert chores into DB   
         for(let c in chores){
             db.insert({
@@ -90,7 +90,57 @@ const addChores = (req,res,db) => {
     }
 }
 
+const editGroup = (req,res,db) => {
+    if(req.session.user_id){
+        const {groupID, newMembers, removedMembers} = req.body;
+        
+        for(let m in newMembers){
+            console.log('adding',m)
+            db.insert({
+                group_id : groupID,
+                user_email : m,
+                auth : newMembers[m]
+            })
+            .into('users_in_groups').then().catch(err => console.log('users_in_groups insert error', err));
+        }
+        if(removedMembers.length > 0){
+            db('users_in_groups')
+            .whereIn('user_email',removedMembers)
+            .andWhere('group_id', '=',groupID)
+            .del()
+            .then(() => res.json('Group Edited'))
+            .catch(err => console.log(err))
+        }
+        else{
+            res.json('Group Edited');
+        }
+        
+        
+    }
+    else{
+        res.status(403).json('MUST LOGIN');
+    }
+}
+
+const deleteGroup = (req,res,db) => {
+    if(req.session.user_id){
+        const {groupID} = req.body;
+        db('groups')
+        .where('group_id','=',groupID)
+        .del()
+        .then(() => {
+            res.json('Group Deleted');
+        })
+        .catch(err => console.log(err))
+    }
+    else{
+        res.status(403).json('MUST LOGIN');
+    }
+}
+
 module.exports = {
     createGroup,
-    addChores
+    addChores,
+    deleteGroup,
+    editGroup
 }

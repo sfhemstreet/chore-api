@@ -21,11 +21,11 @@ const handleSignin = (req,res,db,bcrypt) => {
                         .then(userInfo => {
                             const {email, score, user_name, user_id} = userInfo[0];
                             // data we send to user
-                            const user = {user_name, email, score};
+                            const user_data = {user_name, email, score};
                             // set session user_id
                             req.session.user_id = user_id;
                             res.json({
-                                userData: user,
+                                userData: user_data,
                             }) 
                         })
                         .catch(error => {
@@ -38,7 +38,6 @@ const handleSignin = (req,res,db,bcrypt) => {
                 }
             })
             .catch(error => res.status(400).json('Wrong Credentials'))
-               
         })
         .catch(error => {
             console.log(error)
