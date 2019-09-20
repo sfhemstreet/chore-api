@@ -92,10 +92,9 @@ const addChores = (req,res,db) => {
 
 const editGroup = (req,res,db) => {
     if(req.session.user_id){
-        const {groupID, newMembers, removedMembers} = req.body;
+        const {groupID, newMembers, removedMembers, updatedMembers} = req.body;
         
         for(let m in newMembers){
-            console.log('adding',m)
             db.insert({
                 group_id : groupID,
                 user_email : m,
@@ -103,7 +102,15 @@ const editGroup = (req,res,db) => {
             })
             .into('users_in_groups').then().catch(err => console.log('users_in_groups insert error', err));
         }
-        if(removedMembers.length > 0){
+        for(let m in updatedMembers){
+            db('users_in_groups')
+            .where('user_email','=',m)
+            .andWhere('group_id','=',groupID)
+            .update({
+                auth : updatedMembers[m]
+            }).then().catch(err => console.log('users_in_groups update error', err));
+        }
+        if(removedMembers.length){
             db('users_in_groups')
             .whereIn('user_email',removedMembers)
             .andWhere('group_id', '=',groupID)
@@ -114,8 +121,6 @@ const editGroup = (req,res,db) => {
         else{
             res.json('Group Edited');
         }
-        
-        
     }
     else{
         res.status(403).json('MUST LOGIN');

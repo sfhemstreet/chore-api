@@ -20,8 +20,9 @@ const organizeChoreData = (rawData, email) => {
         const data = rawData[x];
         const {chore_id, assign_name, assign_email, chore_name, assign_date, due_date, complete_date, description, group_name, created_by_email, group_id, score, auth} = data;
         const g_name = group_name.replace(' ','_');
+        const canAddChores = auth;
         const userData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, group_name, created_by_email, group_id, score};
-        const groupData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, g_name, created_by_email, group_id, score};
+        const groupData = {chore_id, assign_name, assign_email, chore_name,assign_date, due_date, complete_date,description, g_name, created_by_email, group_id, score,canAddChores};
         
         //check to see if chore was completed more than a week ago
         if(complete_date !== null){
