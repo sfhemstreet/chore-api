@@ -93,7 +93,7 @@ const addChores = (req,res,db) => {
 const editGroup = (req,res,db) => {
     if(req.session.user_id){
         const {groupID, newMembers, removedMembers, updatedMembers} = req.body;
-        
+        console.log('new', newMembers, 'remove', removedMembers,'update',updatedMembers)
         for(let m in newMembers){
             db.insert({
                 group_id : groupID,
