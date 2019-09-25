@@ -79,6 +79,8 @@ app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)})
 // PROFILE - user specific 
 app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
+app.delete('/deleteaccount', (req,res) => {profile.deleteAccount(req,res,db,bcrypt)});
+app.patch('/changepassword', (req,res) => {profile.changePassword(req,res,db,bcrypt)});
 
 // GROUP - group specific 
 app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db)});

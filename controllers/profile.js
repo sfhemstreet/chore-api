@@ -91,7 +91,19 @@ const submitChore = (req,res,db) => {
     }
 }
 
+// DELETE ACCOUNT - auth user with given password then delete account
+const deleteAccount = (req,res,db,bcrypt) => {
+
+}
+
+// CHANGE PASSWORD - auth user with oldPassword and update db to newPassword
+const changePassword = (req,res,db,bcrypt) => {
+
+}
+
 module.exports = {
     getChores,
-    submitChore
+    submitChore,
+    deleteAccount,
+    changePassword
 }
