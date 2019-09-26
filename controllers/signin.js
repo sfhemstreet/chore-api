@@ -12,6 +12,9 @@ const handleSignin = (req,res,db,bcrypt) => {
     db.select('hash').from('login')
         .where('email', '=', email)
         .then(data => {
+            if(!data[0]){
+                return res.status(400).json('Wrong Credentials')
+            }
             bcrypt.compare(password, data[0].hash)
             .then(pass => {   
                 if(pass){

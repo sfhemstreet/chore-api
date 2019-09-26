@@ -8,6 +8,9 @@ const getChores = (req,res,db) => {
             .from('users')
             .where('users.user_id','=',req.session.user_id)
             .then(email => {
+                if(!email[0]){
+                    return res.status(403).json('MUST LOGIN')
+                }
                 const THIS_USERS_EMAIL = email[0].email;
                 db.select(
                 // chore NAME ID DESCRIPTION ASSIGN_DATE DUE_DATE COMPLETE_DATE
@@ -93,12 +96,81 @@ const submitChore = (req,res,db) => {
 
 // DELETE ACCOUNT - auth user with given password then delete account
 const deleteAccount = (req,res,db,bcrypt) => {
-
+    if(req.session.user_id){
+        const {password} = req.body;
+        // compares db hash pw to sent in pw
+        db.select('hash').from('login')
+        .where('login_id', '=', req.session.user_id)
+        .then(data => {
+            bcrypt.compare(password, data[0].hash)
+            .then(pass => {   
+                if(pass){
+                    return db.select('email')
+                    .from('login')
+                    .where('login_id','=',req.session.user_id)
+                    .then(email => {
+                        db('users_in_groups')
+                        .where('user_email','=',email[0].email)
+                        .del()
+                        .then(() => {
+                            db('chores')
+                            .where('assign_email','=',email[0].email)
+                            .del()
+                            .then(() => {
+                                db('login')
+                                .where('login_id','=',req.session.user_id)
+                                .del()
+                                .then(() => res.json('Account Deleted'))
+                                .catch(err => console.log(err))    
+                            })
+                            .catch(err => console.log(err)) 
+                        })  
+                        .catch(err => console.log(err))
+                    })
+                    .catch(err => console.log(err))
+                }
+                else{
+                    return res.json('Unable to verify user')
+                }
+            }).catch(err => console.log(err))
+        }).catch(err => console.log(err))
+    }   
+    else{
+        return res.status(403).json('MUST LOGIN')
+    }
 }
 
 // CHANGE PASSWORD - auth user with oldPassword and update db to newPassword
 const changePassword = (req,res,db,bcrypt) => {
-
+    if(req.session.user_id){
+        const {oldPassword, newPassword} = req.body;
+        // compares db hash pw to sent in pw
+        db.select('hash').from('login')
+        .where('login_id', '=', req.session.user_id)
+        .then(data => {
+            bcrypt.compare(oldPassword, data[0].hash)
+            .then(pass => {   
+                if(pass){
+                    bcrypt.hash(newPassword, 15, (error, hashedPW) => {
+                        if(error){
+                            return res.status(400).json('Hash')
+                        }
+                        return db('login')
+                        .where('login_id','=',req.session.user_id)
+                        .update({ hash: hashedPW })
+                        .then(() => res.json('Password Changed'))
+                        .catch(err => console.log(err))
+                    })
+                }
+                else{
+                    return res.json('Unable to verify user')
+                }
+            }).catch(err => console.log(err))
+        }).catch(err => console.log(err))
+    }   
+    else{
+        return res.status(403).json('MUST LOGIN')
+    }
 }
 
 module.exports = {
