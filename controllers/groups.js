@@ -1,6 +1,7 @@
 const {todaysDate} = require('../util/todaysDate');
-const {newGroupEmail, addedChoresEmail} = require('../util/sendMail');
+const {newGroupEmail, addedChoresEmail} = require('./sendMail');
 
+// CREATE NEW GROUP
 const createGroup = async (req,res,db) => {
     try{
         if(req.session.user_id){
@@ -64,9 +65,10 @@ const createGroup = async (req,res,db) => {
     }
 }
 
+// ADD CHORES TO EXISTING GROUP
 const addChores = (req,res,db) => {
     if(req.session.user_id){
-        const {groupID, chores} = req.body;
+        const {groupID, chores, emails} = req.body;
         // insert chores into DB   
         for(let c in chores){
             db.insert({
@@ -83,17 +85,25 @@ const addChores = (req,res,db) => {
             });
         } 
         res.json('Chores Added');
-        //addedChoresEmail
+        
+        db.select('group_name')
+        .from('groups')
+        .where('group_id','=',groupID)
+        .then(groupName => {
+            //addedChoresEmail(groupName[0], chores, emails)
+        })
+        
     }
     else{
         res.status(403).json('MUST LOGIN');
     }
 }
 
+// EDIT GROUP - change permissions, add/remove members
 const editGroup = (req,res,db) => {
     if(req.session.user_id){
         const {groupID, newMembers, removedMembers, updatedMembers} = req.body;
-        console.log('new', newMembers, 'remove', removedMembers,'update',updatedMembers)
+        // insert new members
         for(let m in newMembers){
             db.insert({
                 group_id : groupID,
@@ -102,6 +112,7 @@ const editGroup = (req,res,db) => {
             })
             .into('users_in_groups').then().catch(err => console.log('users_in_groups insert error', err));
         }
+        // update persmissions
         for(let m in updatedMembers){
             db('users_in_groups')
             .where('user_email','=',m)
@@ -110,6 +121,7 @@ const editGroup = (req,res,db) => {
                 auth : updatedMembers[m]
             }).then().catch(err => console.log('users_in_groups update error', err));
         }
+        // remove members from group
         if(removedMembers.length){
             db('users_in_groups')
             .whereIn('user_email',removedMembers)
@@ -127,6 +139,7 @@ const editGroup = (req,res,db) => {
     }
 }
 
+// DELETE GROUP 
 const deleteGroup = (req,res,db) => {
     if(req.session.user_id){
         const {groupID} = req.body;

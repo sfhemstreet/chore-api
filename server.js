@@ -35,7 +35,7 @@ const db = knex({
         user : '',
         password : '',
         database : 'postgres'
-      }
+    }
 });
 // store for session 
 const pgstore = new KnexSessionStore({
