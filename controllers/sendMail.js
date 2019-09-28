@@ -1,13 +1,15 @@
 const fetch = require('node-fetch');
 const token  = require('../util/token');
 
-const newGroupEmail = (emails, groupName) => {
+const newGroupEmail = async (emails, groupName) => {
+    console.log('sending mail')
+    const toke = await token.createToken(emails);
     fetch('http://localhost:5000/newgroup', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': `Bearer ${token.createToken()}`
+            'Authorization': `Bearer ${toke}`
         },
         body: JSON.stringify({
             groupName,
@@ -17,17 +19,20 @@ const newGroupEmail = (emails, groupName) => {
     .then(response => response.json())
     .then(res => {
         console.log('Created new group email server response - ',res);
-        return;
-    });
+        return true;
+    })
+    .catch(err => console.log(err))
 }
 
-const addedChoresEmail = (emails,groupName,chores) => {
-    fetch('http://localhost:5000/addedchores', { 
+const addedChoresEmail = async (groupName,chores,emails) => {
+    const toke = await token.createToken(emails)
+    console.log('here it is',toke)
+    fetch('http://localhost:5000/addchores', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': `Bearer ${token.createToken()}`
+            'Authorization': 'Bearer ' + toke
         },
         body: JSON.stringify({
             groupName,
@@ -38,8 +43,9 @@ const addedChoresEmail = (emails,groupName,chores) => {
     .then(response => response.json())
     .then(res => {
         console.log('Added chores email server response - ',res);
-        return;
-    });
+        return true;
+    })
+    .catch(err => console.log(err))
 }
 
 /*

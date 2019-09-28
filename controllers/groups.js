@@ -51,7 +51,8 @@ const createGroup = async (req,res,db) => {
                         } 
                         // if successful
                         res.json('Group Created');
-                        return //newGroupEmail(users, groupName);
+                        
+                        return newGroupEmail(users, groupName);
                     });
                 });
             });
@@ -90,7 +91,7 @@ const addChores = (req,res,db) => {
         .from('groups')
         .where('group_id','=',groupID)
         .then(groupName => {
-            return //addedChoresEmail(groupName[0], chores, emails)
+            return addedChoresEmail(groupName[0], chores, emails)
         })
         
     }
