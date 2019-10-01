@@ -9,11 +9,14 @@ const handleSignin = (req,res,db,bcrypt) => {
         return res.status(400).json('Wrong Credentials')
     }
     // compares db hash pw to sent in pw
-    db.select('hash').from('login')
+    db.select('hash','verified').from('login')
         .where('email', '=', email)
         .then(data => {
             if(!data[0]){
                 return res.status(400).json('Wrong Credentials')
+            }
+            if(!data[0].verified){
+                return res.status(400).json('Email has not been verified, check your email and click the link we went you.');
             }
             bcrypt.compare(password, data[0].hash)
             .then(pass => {   

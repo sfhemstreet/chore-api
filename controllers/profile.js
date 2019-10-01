@@ -1,4 +1,6 @@
 const {organizeChoreData} = require('../util/organizeChoreData.js');
+const {sendForgotPasswordEmail} = require('./sendMail');
+const crypto = require("crypto");
 
 const getChores = (req,res,db) => {
     // see if user has session
@@ -173,9 +175,45 @@ const changePassword = (req,res,db,bcrypt) => {
     }
 }
 
+// FORGOT PASSWORD 
+const forgotPassword = (req,res,db) => {
+    
+    const {email} = req.body;
+    if(!email){
+        return res.json('No');
+    }
+    db.select('email')
+    .from('login')
+    .where('email','=',email)
+    .then(data => {
+        if(!data){
+            return res.json('Email not found');
+        }
+        db('login')
+        .where('email','=',email)
+        .update({
+            verified: false,
+            str: crypto.randomBytes(20).toString('hex')
+        })
+        .returning('str')
+        .then(str => {
+            res.json('Success!');
+            return sendForgotPasswordEmail(email,str)
+        })
+    })
+    .catch(err => console.log('error forgotpw finding email', err))
+}
+
+// RESET PASSWORD
+const resetForgotPassword = (req,res,db,bcrypt) => {
+    
+}
+
 module.exports = {
     getChores,
     submitChore,
     deleteAccount,
-    changePassword
+    changePassword,
+    forgotPassword,
+    resetForgotPassword
 }

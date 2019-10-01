@@ -52,7 +52,7 @@ const createGroup = async (req,res,db) => {
                         // if successful
                         res.json('Group Created');
                         
-                        return newGroupEmail(users, groupName);
+                        return newGroupEmail(Object.keys(users), groupName);
                     });
                 });
             });
