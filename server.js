@@ -73,8 +73,9 @@ app.use(cors(corsOptions));
 // SIGN IN 
 app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
-// REGISTER
+// REGISTER & VERIFY
 app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
+app.get('/verify:string', (req,res) => {register.handleVerification(req,res,db)});
 
 // PROFILE - user specific 
 app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
