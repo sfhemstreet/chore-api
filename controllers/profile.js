@@ -1,5 +1,5 @@
 const {organizeChoreData} = require('../util/organizeChoreData.js');
-const {sendForgotPasswordEmail} = require('./sendMail');
+const {forgotPasswordEmail} = require('./sendMail');
 const crypto = require("crypto");
 
 const getChores = (req,res,db) => {
@@ -176,8 +176,7 @@ const changePassword = (req,res,db,bcrypt) => {
 }
 
 // FORGOT PASSWORD 
-const forgotPassword = (req,res,db) => {
-    
+const initForgotPassword = (req,res,db) => {
     const {email} = req.body;
     if(!email){
         return res.json('No');
@@ -192,20 +191,68 @@ const forgotPassword = (req,res,db) => {
         db('login')
         .where('email','=',email)
         .update({
-            verified: false,
             str: crypto.randomBytes(20).toString('hex')
         })
         .returning('str')
         .then(str => {
             res.json('Success!');
-            return sendForgotPasswordEmail(email,str)
+            return forgotPasswordEmail(email,str[0])
         })
     })
     .catch(err => console.log('error forgotpw finding email', err))
 }
 
-// RESET PASSWORD
+// CHECK AUTH FORGOT PASSWORD  
+const checkAuthForgotPassword = (req,res,db) => {
+    const {str} = req.body;
+    if(!str){
+        return res.json('Unauthorized');
+    }
+    db.select('login_id').from('login').where('str','=',str)
+    .then(loginID => {
+        console.log('loginID',loginID)
+        if(!loginID[0]){
+            return res.json('Unauthorized');
+        }
+        req.session.user_id = loginID[0].login_id;
+        return res.json({
+            success: true,
+            id: loginID[0].login_id
+        });
+    })
+    .catch(err => console.log('check auth db error',err))
+}
+
+// RESET FORGOT PASSWORD - only accept with cookie auth 
 const resetForgotPassword = (req,res,db,bcrypt) => {
+    if(!req.session.user_id){
+        return res.json('MUST LOGIN')
+    }
+    const {password, id, str} = req.body;
+    db.select('login_id').from('login').where('login_id','=',id).andWhere('str','=',str)
+    .then(data => {
+        if(!data[0]){
+            return res.json('MUST LOGIN')
+        }
+        bcrypt.hash(password,15,(err,hashedPW) => {
+            if(err){
+                console.log('hash error',err);
+            }
+            db('login').where('login_id','=',id).andWhere('str','=',str)
+            .update({
+                str: '0',
+                hash: hashedPW
+            })
+            .then(() => {
+                return res.json('Success')
+            })
+            .catch(err => {
+                console.log('error at update',err)
+                return res.json('MUST LOGIN')
+            })
+        })
+    })
+    .catch(err => console.log('db error',err))
     
 }
 
@@ -214,6 +261,7 @@ module.exports = {
     submitChore,
     deleteAccount,
     changePassword,
-    forgotPassword,
-    resetForgotPassword
+    initForgotPassword,
+    resetForgotPassword,
+    checkAuthForgotPassword
 }

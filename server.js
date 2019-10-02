@@ -73,7 +73,7 @@ app.use(cors(corsOptions));
 // SIGN IN 
 app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
-// REGISTER & VERIFY
+// REGISTER 
 app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
 app.get('/verify:string', (req,res) => {register.handleVerification(req,res,db)});
 
@@ -82,6 +82,9 @@ app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
 app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
 app.delete('/deleteaccount', (req,res) => {profile.deleteAccount(req,res,db,bcrypt)});
 app.patch('/changepassword', (req,res) => {profile.changePassword(req,res,db,bcrypt)});
+app.post('/forgotpassword', (req,res) => {profile.initForgotPassword(req,res,db)});
+app.post('/checkauthforgotpassword', (req,res) => {profile.checkAuthForgotPassword(req,res,db)})
+app.post('/resetforgotpassword', (req,res) => {profile.resetForgotPassword(req,res,db,bcrypt)});
 
 // GROUP - group specific 
 app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db)});

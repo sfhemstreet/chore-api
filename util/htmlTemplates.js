@@ -10,7 +10,7 @@ const verifiedUser = () => {
 
 const emailTemplate = (title, text) => {
 
-    const email_title = title
+    const email_title = title;
     const chore_logo_src = 'https://i.imgur.com/9YeCrLD.png';
     const chore_homepage_link = 'http://localhost:3000/';
     const linkedin_img_src = 'http://www.vhtrucks.com/wp-content/uploads/2018/01/linkedin-logo.png';
@@ -40,12 +40,6 @@ const emailTemplate = (title, text) => {
                         <a href="${chore_homepage_link}" target="_blank">
                             <img src="${chore_logo_src}" alt="Chore Logo" width="100" />
                         </a>
-                    </div>
-                </div>
-                <div>
-                    <div align="center">
-                        <!-- Initial relevant banner image goes here under src-->
-                        <img src="https://www.bannerhealth.com/healthcareblog/-/media/images/project/blog/images/household-products.ashx?w=1170&hash=0432392A9AB20D4CB1F23F4B4A00CB5CF7ADA0E7" alt="Image Banner" style="display: block;border:0;" width="100%"/>
                     </div>
                 </div>
                 <div>

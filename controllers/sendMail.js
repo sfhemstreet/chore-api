@@ -48,8 +48,9 @@ const addedChoresEmail = async (groupName,chores,emails) => {
 
 
 const forgotPasswordEmail = async (email,string) => {
+    console.log(email,string)
     const toke = await token.createToken(email);
-    fetch('http://localhost:5000/resetpassword', { 
+    fetch('http://localhost:5000/forgotpassword', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -71,7 +72,6 @@ const forgotPasswordEmail = async (email,string) => {
 
 
 sendVerifyEmail = async (userData, verifyStr) => {
-    
     const {email, user_name} = userData;
     const toke = await token.createToken(email);
     fetch('http://localhost:5000/verifyuseremail', { 
