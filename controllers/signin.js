@@ -16,7 +16,7 @@ const handleSignin = (req,res,db,bcrypt) => {
                 return res.status(400).json('Wrong Credentials')
             }
             if(!data[0].verified){
-                return res.status(400).json('Email has not been verified, check your email and click the link we went you.');
+                return res.status(400).json('Account has not been verified, check your email and click the verification link we sent you.');
             }
             bcrypt.compare(password, data[0].hash)
             .then(pass => {   
