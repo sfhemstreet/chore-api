@@ -1,9 +1,9 @@
 const crypto = require("crypto");
-const {sendVerifyEmail} = require('./sendMail');
-const template = require('../util/htmlTemplates');
+const {registerVerificationEmail} = require('../email/email');
+const template = require('../../util/htmlTemplates');
 
 // Register new user - hash pw, insert into DB at login and users tables 
-const handleRegister = (req,res,db,bcrypt) => {
+const register = (req,res,db,bcrypt) => {
     const {email, password, username} = req.body;
     // do more checks for bad input here!!!
     if(!email || !password || !username){
@@ -24,7 +24,7 @@ const handleRegister = (req,res,db,bcrypt) => {
             .into('login')
             .returning(['login_id', 'str'])
             .then(data => {
-                const loginID = data[0].loginID;
+                const loginID = data[0].login_id;
                 const str = data[0].str;
                 return trx('users')
                     .returning('*')
@@ -37,7 +37,7 @@ const handleRegister = (req,res,db,bcrypt) => {
                     .then(user => {
                         // respond with users table data
                         res.json('Success!');
-                        sendVerifyEmail(user[0],str);
+                        registerVerificationEmail(user[0],str);
                     }) 
                     .catch(error => res.status(400).json('REGISTER ERROR'))
             })
@@ -51,7 +51,8 @@ const handleRegister = (req,res,db,bcrypt) => {
     })
 }
 
-const handleVerification = (req,res,db) => {
+// VERIFY USER REGISTERATION
+const verification = (req,res,db) => {
     const string = req.params.string;
 
     db.select('*').from('login').where('str','=',string)
@@ -63,7 +64,7 @@ const handleVerification = (req,res,db) => {
         db('login')
         .where('login_id','=',user[0].login_id)
         .update({
-            str: 0,
+            str: null,
             verified: true
         })
         .then(() => {
@@ -72,10 +73,10 @@ const handleVerification = (req,res,db) => {
         })
         .catch(err => console.log('error in verify db', err))
     })
-    .catch(err => console.log('handleVerification error', err))
+    .catch(err => console.log('verification error', err))
 }
 
 module.exports = {
-    handleRegister,
-    handleVerification
+    register,
+    verification
 }

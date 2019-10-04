@@ -1,8 +1,5 @@
-// CHANGE THIS TO process.env.secretKey when moving to production
-const key = require('../key');
-
 // HANDLE USER SIGN IN
-const handleSignin = (req,res,db,bcrypt) => {
+const signin = (req,res,db,bcrypt) => {
     const {email, password} = req.body;
     // DO MORE CHECKS HERE
     if(!email || !password){
@@ -53,5 +50,5 @@ const handleSignin = (req,res,db,bcrypt) => {
 }
 
 module.exports = {
-    handleSignin: handleSignin
+    signin
 }
