@@ -5,15 +5,12 @@ const cors = require('cors');
 const knex = require('knex');
 const session = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(session);
-// Modules
-const register = require('./controllers/register.js');
-const signin = require('./controllers/signin.js');
-const profile = require('./controllers/profile.js');
-const groups = require('./controllers/groups.js');
+// Controllers
+const user = require('./controllers/user/user.js');
+const group = require('./controllers/group/group.js');
 
 // Constants
 const TWO_HOURS = 2 * 60 * 60 * 1000;
-
 
 // Process.env
 const {
@@ -69,30 +66,49 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-// ROUTES
-// SIGN IN 
-app.post('/signin',  (req,res) => {signin.handleSignin(req,res,db,bcrypt)});
 
-// REGISTER 
-app.post('/register', (req,res) => {register.handleRegister(req,res,db,bcrypt)});
-app.get('/verify:string', (req,res) => {register.handleVerification(req,res,db)});
+// ROUTES //
+/* --- USER --- */
+// sign in 
+app.post('/signin',  (req,res) => {user.signin(req,res,db,bcrypt)});
 
-// PROFILE - user specific 
-app.get('/getchores',  (req,res) => {profile.getChores(req,res,db)});
-app.patch('/submitchore', (req,res) => {profile.submitChore(req,res,db)});
-app.delete('/deleteaccount', (req,res) => {profile.deleteAccount(req,res,db,bcrypt)});
-app.patch('/changepassword', (req,res) => {profile.changePassword(req,res,db,bcrypt)});
-app.post('/forgotpassword', (req,res) => {profile.initForgotPassword(req,res,db)});
-app.post('/checkauthforgotpassword', (req,res) => {profile.checkAuthForgotPassword(req,res,db)})
-app.post('/resetforgotpassword', (req,res) => {profile.resetForgotPassword(req,res,db,bcrypt)});
+// register 
+app.post('/register', (req,res) => {user.register(req,res,db,bcrypt)});
+app.get('/verify/:string', (req,res) => {user.registerVerification(req,res,db)});
 
-// GROUP - group specific 
-app.post('/creategroup', async(req,res) => {groups.createGroup(req,res,db)});
-app.post('/addchores', (req,res) => {groups.addChores(req,res,db)});
-app.delete('/deletegroup', (req,res) => {groups.deleteGroup(req,res,db)});
-app.patch('/editgroup', (req,res) => {groups.editGroup(req,res,db)});
+// get chores
+app.get('/getchores',  (req,res) => {user.getChores(req,res,db)});
 
-// Listen 
+// submit chore
+app.patch('/submitchore', (req,res) => {user.submitChore(req,res,db)});
+
+// delete account
+app.delete('/deleteaccount', (req,res) => {user.deleteAccount(req,res,db,bcrypt)});
+
+// change password
+app.patch('/changepassword', (req,res) => {user.changePassword(req,res,db,bcrypt)});
+
+// forgot password
+app.post('/forgotpassword', (req,res) => {user.initForgotPassword(req,res,db)});
+app.post('/checkauthforgotpassword', (req,res) => {user.checkAuthForgotPassword(req,res,db)})
+app.post('/resetforgotpassword', (req,res) => {user.resetForgotPassword(req,res,db,bcrypt)});
+
+/* --- GROUP --- */
+// create new group
+app.post('/creategroup', (req,res) => {group.createGroup(req,res,db)});
+
+// add chores to group
+app.post('/addchores', (req,res) => {group.addChores(req,res,db)});
+
+// delete group
+app.delete('/deletegroup', (req,res) => {group.deleteGroup(req,res,db)});
+
+// edit group - add/remove members / change member permissions
+app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
+
+
+
+/* --- Listen --- */
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
 });

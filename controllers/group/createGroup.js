@@ -1,5 +1,5 @@
-const {todaysDate} = require('../util/todaysDate');
-const {newGroupEmail, addedChoresEmail} = require('./sendMail');
+const {todaysDate} = require('../../util/todaysDate');
+const {newGroupEmail} = require('../email/email');
 
 // CREATE NEW GROUP
 const createGroup = async (req,res,db) => {
@@ -66,100 +66,6 @@ const createGroup = async (req,res,db) => {
     }
 }
 
-// ADD CHORES TO EXISTING GROUP
-const addChores = (req,res,db) => {
-    if(req.session.user_id){
-        const {groupID, chores, emails} = req.body;
-        // insert chores into DB   
-        for(let c in chores){
-            db.insert({
-                chore_name : c,
-                assign_date : todaysDate(),
-                due_date : chores[c].dueDate,
-                group_id : groupID,
-                assign_email : chores[c].assigned,
-                description : chores[c].description
-            })
-            .into('chores').then().catch(err => {
-                res.json('Error');
-                console.log('error at chore insert', err)
-            });
-        } 
-        res.json('Chores Added');
-
-        db.select('group_name')
-        .from('groups')
-        .where('group_id','=',groupID)
-        .then(groupName => {
-            return addedChoresEmail(groupName[0], chores, emails)
-        })
-        
-    }
-    else{
-        res.status(403).json('MUST LOGIN');
-    }
-}
-
-// EDIT GROUP - change permissions, add/remove members
-const editGroup = (req,res,db) => {
-    if(req.session.user_id){
-        const {groupID, newMembers, removedMembers, updatedMembers} = req.body;
-        // insert new members
-        for(let m in newMembers){
-            db.insert({
-                group_id : groupID,
-                user_email : m,
-                auth : newMembers[m]
-            })
-            .into('users_in_groups').then().catch(err => console.log('users_in_groups insert error', err));
-        }
-        // update persmissions
-        for(let m in updatedMembers){
-            db('users_in_groups')
-            .where('user_email','=',m)
-            .andWhere('group_id','=',groupID)
-            .update({
-                auth : updatedMembers[m]
-            }).then().catch(err => console.log('users_in_groups update error', err));
-        }
-        // remove members from group
-        if(removedMembers.length){
-            db('users_in_groups')
-            .whereIn('user_email',removedMembers)
-            .andWhere('group_id', '=',groupID)
-            .del()
-            .then(() => res.json('Group Edited'))
-            .catch(err => console.log(err))
-        }
-        else{
-            res.json('Group Edited');
-        }
-    }
-    else{
-        res.status(403).json('MUST LOGIN');
-    }
-}
-
-// DELETE GROUP 
-const deleteGroup = (req,res,db) => {
-    if(req.session.user_id){
-        const {groupID} = req.body;
-        db('groups')
-        .where('group_id','=',groupID)
-        .del()
-        .then(() => {
-            res.json('Group Deleted');
-        })
-        .catch(err => console.log(err))
-    }
-    else{
-        res.status(403).json('MUST LOGIN');
-    }
-}
-
 module.exports = {
-    createGroup,
-    addChores,
-    deleteGroup,
-    editGroup
+    createGroup
 }
