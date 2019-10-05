@@ -27,7 +27,7 @@ const deleteAccount = (req,res,db,bcrypt) => {
                                 .where('login_id','=',req.session.user_id)
                                 .del()
                                 .then(() => {
-                                    res.json('Account Deleted');
+                                    res.status(200).json('Account Deleted');
                                     deleteAccountEmail(data[0].email, data[0].user_name)
                                 })
                                 .catch(err => console.log(err))    
@@ -39,7 +39,7 @@ const deleteAccount = (req,res,db,bcrypt) => {
                     .catch(err => console.log(err))
                 }
                 else{
-                    return res.json('Unable to verify user')
+                    return res.status(401).json('Unable to verify user')
                 }
             }).catch(err => console.log(err))
         }).catch(err => console.log(err))

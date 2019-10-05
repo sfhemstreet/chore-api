@@ -28,7 +28,7 @@ const app = express();
 const db = knex({
     client: 'pg',
     connection: {
-        host : '127.0.0.1',
+        host : process.env.DB_HOST || '127.0.0.1',
         user : '',
         password : '',
         database : 'postgres'
@@ -62,7 +62,7 @@ app.use(bodyParser.json());
 // CORS middleware ->>> change to where frontend is hosted !
 const corsOptions = {
     credentials: true,
-    origin: 'http://localhost:3000'
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000'
 }
 app.use(cors(corsOptions));
 

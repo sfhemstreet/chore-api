@@ -5,15 +5,21 @@ const crypto = require("crypto");
 const initForgotPassword = (req,res,db) => {
     const {email} = req.body;
     if(!email){
-        return res.json('No');
+        return res.status(400).json('No');
     }
-    db.select('email')
+    db.select('email', 'verified')
     .from('login')
     .where('email','=',email)
     .then(data => {
-        if(!data){
-            return res.json('Email not found');
+        // check if email is user
+        if(!data[0]){
+            return res.status(400).json('Account not found, double check email.');
         }
+        // check if user is valid
+        if(!data[0].verified){
+            return res.status(400).json('Account linked to that email has not been comfirmed. We sent you an email to confirm your account when you first created it. Please click the verify link in that email.');
+        }
+        
         db('login')
         .where('email','=',email)
         .update({
@@ -21,7 +27,7 @@ const initForgotPassword = (req,res,db) => {
         })
         .returning('str')
         .then(str => {
-            res.json('Success!');
+            res.status(200).json('Success!');
             return forgotPasswordEmail(email,str[0])
         })
     })
@@ -32,15 +38,14 @@ const initForgotPassword = (req,res,db) => {
 const checkAuthForgotPassword = (req,res,db) => {
     const {str} = req.body;
     if(!str){
-        return res.json('Unauthorized');
+        return res.status(401).json('Unauthorized');
     }
     db.select('login_id').from('login').where('str','=',str)
     .then(loginID => {
         if(!loginID[0]){
-            return res.json('Unauthorized');
+            return res.status(401).json('Unauthorized');
         }
         req.session.user_id = loginID[0].login_id;
-        console.log('legit', loginID[0].login_id, str)
         return res.json({
             success: true,
             id: loginID[0].login_id
@@ -54,14 +59,13 @@ const resetForgotPassword = (req,res,db,bcrypt) => {
     const {password, id, str} = req.body;
     
     if(!req.session.user_id || str === ''){
-        return res.json('MUST LOGIN');
+        return res.status(401).json('MUST LOGIN');
     }
-
+    
     db.select('login_id').from('login').where('login_id','=',id).andWhere('str','=',str)
     .then(data => {
         if(!data[0]){
-            console.log('no data there')
-            return res.json('MUST LOGIN')
+            return res.status(401).json('MUST LOGIN')
         }
         bcrypt.hash(password,15,(err,hashedPW) => {
             if(err){
@@ -73,16 +77,15 @@ const resetForgotPassword = (req,res,db,bcrypt) => {
                 hash: hashedPW
             })
             .then(() => {
-                return res.json('Success')
+                return res.status(200).json('Success')
             })
             .catch(err => {
                 console.log('error at update',err)
-                return res.json('MUST LOGIN')
+                return res.status(401).json('MUST LOGIN')
             })
         })
     })
     .catch(err => console.log('db error',err))
-    
 }
 
 module.exports = {

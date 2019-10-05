@@ -14,7 +14,7 @@ const getChores = (req,res,db) => {
                 const THIS_USERS_EMAIL = email[0].email;
                 db.select(
                 // chore NAME ID DESCRIPTION ASSIGN_DATE DUE_DATE COMPLETE_DATE
-                'chores.chore_name','chores.chore_id','chores.description','chores.assign_date','chores.due_date','chores.complete_date',
+                'chores.chore_name','chores.chore_id','chores.description','chores.assign_date','chores.due_date','chores.complete_date','chores.type',
                 // user NAME EMAIL SCORE
                 'users.user_name AS assign_name', 'users.email AS assign_email','users.score',
                 // group NAME ID CREATED_BY_ID CREATED_BY_EMAIL

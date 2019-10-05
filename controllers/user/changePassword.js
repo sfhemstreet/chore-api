@@ -15,17 +15,17 @@ const changePassword = (req,res,db,bcrypt) => {
                 if(pass){
                     bcrypt.hash(newPassword, 15, (error, hashedPW) => {
                         if(error){
-                            return res.status(400).json('Hash')
+                            return res.status(500).json('Error on our end')
                         }
                         return db('login')
                         .where('login_id','=',req.session.user_id)
                         .update({ hash: hashedPW })
-                        .then(() => res.json('Password Changed'))
+                        .then(() => res.status(200).json('Password Changed'))
                         .catch(err => console.log(err))
                     })
                 }
                 else{
-                    return res.json('Unable to verify user')
+                    return res.status(400).json('Unable to verify user')
                 }
             }).catch(err => console.log(err))
         }).catch(err => console.log(err))

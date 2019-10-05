@@ -11,16 +11,17 @@ const addChores = (req,res,db) => {
                 chore_name : c,
                 assign_date : todaysDate(),
                 due_date : chores[c].dueDate,
+                type: chores[c].type,
                 group_id : groupID,
                 assign_email : chores[c].assigned,
                 description : chores[c].description
             })
             .into('chores').then().catch(err => {
-                res.json('Error');
+                res.status(500).json('Error');
                 console.log('error at chore insert', err)
             });
         } 
-        res.json('Chores Added');
+        res.status(200).json('Chores Added');
 
         db.select('group_name')
         .from('groups')
