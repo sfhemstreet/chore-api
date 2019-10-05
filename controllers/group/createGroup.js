@@ -43,6 +43,7 @@ const createGroup = async (req,res,db) => {
                                 chore_name : c,
                                 assign_date : todaysDate(),
                                 due_date : chores[c].dueDate,
+                                type: chores[c].type,
                                 group_id : groupID[0],
                                 assign_email : chores[c].assigned,
                                 description : chores[c].description
@@ -50,7 +51,7 @@ const createGroup = async (req,res,db) => {
                             .into('chores').then().catch(err => console.log('error at chore insert', err))
                         } 
                         // if successful
-                        res.json('Group Created');
+                        res.status(200).json('Group Created');
                         
                         return newGroupEmail(Object.keys(users), groupName);
                     });

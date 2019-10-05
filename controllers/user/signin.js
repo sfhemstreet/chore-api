@@ -3,17 +3,17 @@ const signin = (req,res,db,bcrypt) => {
     const {email, password} = req.body;
     // DO MORE CHECKS HERE
     if(!email || !password){
-        return res.status(400).json('Wrong Credentials')
+        return res.status(400).json("Can't find that account, check your email and password.")
     }
     // compares db hash pw to sent in pw
     db.select('hash','verified').from('login')
         .where('email', '=', email)
         .then(data => {
             if(!data[0]){
-                return res.status(400).json('Wrong Credentials')
+                return res.status(400).json("Can't find that account, check your email and password.")
             }
             if(!data[0].verified){
-                return res.status(400).json('Account has not been verified, check your email and click the verification link we sent you.');
+                return res.status(401).json('Account has not been verified, check your email and click the verification link we sent you.');
             }
             bcrypt.compare(password, data[0].hash)
             .then(pass => {   
@@ -27,24 +27,24 @@ const signin = (req,res,db,bcrypt) => {
                             const user_data = {user_name, email, score};
                             // set session user_id
                             req.session.user_id = user_id;
-                            res.json({
+                            res.status(200).json({
                                 userData: user_data,
                             }) 
                         })
                         .catch(error => {
                             console.log(error)
-                            res.status(400).json('Unable to get user')
+                            res.status(400).json("Can't find that account, check your email and password.")
                         })
                 }
                 else{
-                    res.status(400).json('Wrong Credentials')
+                    res.status(400).json("Can't find that account, check your email and password.")
                 }
             })
-            .catch(error => res.status(400).json('Wrong Credentials'))
+            .catch(error => res.status(400).json("Can't find that account, check your email and password."))
         })
         .catch(error => {
             console.log(error)
-            res.status(400).json('Wrong Credentials')
+            res.status(400).json("Can't find that account, check your email and password.")
         }
     );
 }

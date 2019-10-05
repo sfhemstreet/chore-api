@@ -39,12 +39,12 @@ const editGroup = (req,res,db) => {
             .andWhere('group_id', '=',groupID)
             .del()
             .then(() => {
-                return res.json('Group Edited')
+                return res.status(200).json('Group Edited')
             })
             .catch(err => console.log(err))
         }
         else{
-            return res.json('Group Edited');
+            return res.status(200).json('Group Edited');
         }
     }
     else{

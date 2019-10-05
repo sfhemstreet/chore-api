@@ -8,7 +8,7 @@ const deleteGroup = (req,res,db) => {
         .where('group_id','=',groupID)
         .del()
         .then(() => {
-            res.json('Group Deleted');
+            res.status(200).json('Group Deleted');
         })
         .catch(err => console.log(err))
     }
