@@ -2,9 +2,10 @@ const fetch = require('node-fetch');
 const token  = require('../../util/token');
 
 const registerVerificationEmail = async (userData, verifyStr) => {
+    console.log(verifyStr)
     const {email, user_name} = userData;
-    const toke = await token.createToken(email);
-    fetch('http://localhost:5000/verifyuseremail', { 
+    const toke = await token.createToken(email).catch(err => console.log(err))
+    fetch(`${process.env.EMAIL_URL}verifyuseremail`, { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

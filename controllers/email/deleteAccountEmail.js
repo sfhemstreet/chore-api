@@ -2,8 +2,8 @@ const fetch = require('node-fetch');
 const token  = require('../../util/token');
 
 const deleteAccountEmail = async (email, username) => {
-    const toke = await token.createToken(email)
-    fetch('http://localhost:5000/deleteaccount', { 
+    const toke = await token.createToken(email).catch(err => console.log(err))
+    fetch(`${process.env.EMAIL_URL}deleteaccount`, { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
