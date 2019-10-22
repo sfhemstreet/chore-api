@@ -32,12 +32,15 @@ const app = express();
 // setup database
 const db = knex({
     client: 'pg',
-    connection: {
-        host : process.env.DB_HOST || '127.0.0.1',
-        user : '',
-        password : '',
-        database : 'postgres'
-    }
+    connection: process.env.DATABASE_CONNECTION_STRING ? 
+        process.env.DATABASE_CONNECTION_STRING 
+        :
+        {
+            host : process.env.DB_HOST || '127.0.0.1',
+            user : '',
+            password : '',
+            database : 'postgres'
+        }
 });
 // store for session 
 const pgstore = new KnexSessionStore({
