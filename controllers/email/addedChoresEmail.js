@@ -2,8 +2,8 @@ const fetch = require('node-fetch');
 const token  = require('../../util/token');
 
 const addedChoresEmail = async (groupName,chores,emails) => {
-    const toke = await token.createToken(emails)
-    fetch('http://localhost:5000/addchores', { 
+    const toke = await token.createToken(emails).catch(err => console.log(err))
+    fetch(`${process.env.EMAIL_URL}addchores`, { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

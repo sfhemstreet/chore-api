@@ -2,9 +2,8 @@ const fetch = require('node-fetch');
 const token  = require('../../util/token');
 
 const forgotPasswordEmail = async (email,string) => {
-    console.log(email,string)
-    const toke = await token.createToken(email);
-    fetch('http://localhost:5000/forgotpassword', { 
+    const toke = await token.createToken(email).catch(err => console.log(err))
+    fetch('process.env.EMAIL_URLforgotpassword', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -5,9 +5,14 @@ const cors = require('cors');
 const knex = require('knex');
 const session = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(session);
+// env variables
+require('dotenv').config({path: __dirname + '/.env'})
+
 // Controllers
 const user = require('./controllers/user/user.js');
 const group = require('./controllers/group/group.js');
+
+
 
 // Constants
 const TWO_HOURS = 2 * 60 * 60 * 1000;
@@ -59,7 +64,7 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// CORS middleware ->>> change to where frontend is hosted !
+// CORS middleware 
 const corsOptions = {
     credentials: true,
     origin: process.env.FRONTEND_URL || 'http://localhost:3000'
@@ -112,23 +117,6 @@ app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
 });
-
-
-
-
-/* NOTES */
-/*
-POSTGRES
-- to delete user, delete from login table
-- move sql queries to seperate files
-SESSIONS
-- change name of session id
-- test multiple users at once
-- create route to authentic user actions
-MESSAGING
-- integrate socket.io
-*/
-
 
 module.exports = {
     app
