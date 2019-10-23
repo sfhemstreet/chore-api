@@ -12,7 +12,7 @@ const emailTemplate = (title, text) => {
 
     const email_title = title;
     const chore_logo_src = 'https://i.imgur.com/9YeCrLD.png';
-    const chore_homepage_link = 'http://localhost:3000/';
+    const chore_homepage_link = process.env.FRONTEND_URL;
     const linkedin_img_src = 'http://www.vhtrucks.com/wp-content/uploads/2018/01/linkedin-logo.png';
     const linkedin_link = 'https://www.linkedin.com/in/spencer-hemstreet-094331177/';
     const github_img_src = 'http://pluspng.com/img-png/github-octocat-logo-png-check-me-out-on-github-500.png';
