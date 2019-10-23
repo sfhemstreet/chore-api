@@ -71,7 +71,6 @@ app.use(bodyParser.json());
 const allowedOrigins = [process.env.FRONTEND_URL,'http://localhost:3000',"https://chore-app-frontend.herokuapp.com", "http://chore-app-frontend.herokuapp.com"];
 // CORS middleware options
 const corsOptions = {
-    credentials: true,
     origin: (origin, callback) => {
         if(!origin)
             return callback(null, true);
@@ -79,11 +78,12 @@ const corsOptions = {
             return callback(Error("CORS, origin invalid"), false);
 
         return callback(null, true);
-    }
+    },
+    credentials: true,
 }
 app.use(cors(corsOptions));
 
-
+app.options('*', cors(corsOptions))
 // ROUTES //
 /* --- USER --- */
 // sign in 
