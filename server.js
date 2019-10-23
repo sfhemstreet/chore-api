@@ -55,17 +55,18 @@ const pgstore = new KnexSessionStore({
 const sess = {
     store: pgstore,
     name: 'sid',
-    secret: process.env.SESS_SECRET,
+    secret: process.env.SESS_SECRET || 'lol',
     saveUninitialized: false,
     resave: false,
     cookie: {
         path: "/",
         maxAge: SESS_LIFETIME,
         secure: app.get('env') === 'production' ? true : false,
-        sameSite: 'none',
+        sameSite: false,
         httpOnly: true
     }
 }
+console.log(app.get('env'))
 if(app.get('env') === 'production'){
     app.set('trust proxy', 1);
 }
@@ -93,9 +94,6 @@ app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions))
 // ROUTES //
-app.get('/', (req,res) => {
-    return res.json('Hi');
-});
 /* --- USER --- */
 // sign in 
 app.post('/signin',  (req,res) => {user.signin(req,res,db,bcrypt)});
@@ -134,11 +132,13 @@ app.delete('/deletegroup', (req,res) => {group.deleteGroup(req,res,db)});
 // edit group - add/remove members / change member permissions
 app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
 
-
+app.get('/', (req,res) => {
+    return res.json('Hi');
+});
 
 /* --- Listen --- */
-app.listen(process.env.PORT, () => {
-    console.log(`App running on port ${process.env.PORT}`);
+app.listen(process.env.PORT || 4000, () => {
+    console.log(`App running on port ${process.env.PORT || 4000}`);
 });
 
 module.exports = {
