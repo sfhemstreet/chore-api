@@ -52,7 +52,7 @@ const pgstore = new KnexSessionStore({
     tablename: 'user_sessions'
 });
 // Set up express-session
-app.use(session({
+const sess = {
     store: pgstore,
     name: 'sid',
     secret: process.env.SESS_SECRET,
@@ -61,11 +61,15 @@ app.use(session({
     cookie: {
         path: "/",
         maxAge: SESS_LIFETIME,
-        secure: IN_PROD,
-        sameSite: false,
+        secure: app.get('env') === 'production' ? true : false,
+        sameSite: 'none',
         httpOnly: true
     }
-}));
+}
+if(app.get('env') === 'production'){
+    app.set('trust proxy', 1);
+}
+app.use(session(sess));
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
