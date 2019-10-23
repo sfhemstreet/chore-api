@@ -89,6 +89,9 @@ app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions))
 // ROUTES //
+app.get('/', (req,res) => {
+    return res.json('Hi');
+});
 /* --- USER --- */
 // sign in 
 app.post('/signin',  (req,res) => {user.signin(req,res,db,bcrypt)});
