@@ -18,14 +18,18 @@ const group = require('./controllers/group/group.js');
 const TWO_HOURS = 2 * 60 * 60 * 1000;
 
 // Process.env
+/*
 const {
     PORT = 4000,
     NODE_ENV = 'dev',
     SESS_SECRET = 'keepitsecretkeepitsafe',
     SESS_LIFETIME = TWO_HOURS
 } = process.env;
+*/
 
-const IN_PROD = NODE_ENV === 'prod';
+//const IN_PROD = NODE_ENV === 'prod';
+const IN_PROD = true;
+const SESS_LIFETIME = TWO_HOURS;
 
 const app = express();
 
@@ -51,7 +55,7 @@ const pgstore = new KnexSessionStore({
 app.use(session({
     store: pgstore,
     name: 'sid',
-    secret: SESS_SECRET,
+    secret: process.env.SESS_SECRET,
     saveUninitialized: false,
     resave: false,
     cookie: {
@@ -126,8 +130,8 @@ app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
 
 
 /* --- Listen --- */
-app.listen(PORT, () => {
-    console.log(`App running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+    console.log(`App running on port ${process.env.PORT}`);
 });
 
 module.exports = {
