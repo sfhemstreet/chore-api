@@ -56,13 +56,13 @@ const sess = {
     store: pgstore,
     name: 'sid',
     secret: process.env.SESS_SECRET || 'lol',
-    saveUninitialized: true,
-    resave: true,
+    saveUninitialized: false,
+    resave: false,
     cookie: {
         path: "/",
         maxAge: 3 * 24 * 60 * 60 * 1000,
-        secure: app.get('env') === 'production' ? false : false,
-        sameSite: false,
+        secure: app.get('env') === 'production' ? true : false,
+        sameSite: 'None',
         httpOnly: true
     }
 }
