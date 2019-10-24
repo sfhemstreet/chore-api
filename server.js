@@ -62,7 +62,7 @@ const sess = {
         path: "/",
         maxAge: 3 * 24 * 60 * 60 * 1000,
         secure: app.get('env') === 'production' ? false : false,
-        sameSite: 'none',
+        sameSite: false,
         httpOnly: true
     }
 }
