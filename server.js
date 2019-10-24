@@ -56,8 +56,8 @@ const sess = {
     store: pgstore,
     name: 'sid',
     secret: process.env.SESS_SECRET || 'lol',
-    saveUninitialized: false,
-    resave: false,
+    saveUninitialized: true,
+    resave: true,
     cookie: {
         path: "/",
         maxAge: 3 * 24 * 60 * 60 * 1000,
