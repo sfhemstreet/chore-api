@@ -1,7 +1,7 @@
 # chore-api
-backend for chore-app
+Back-End for Chore
 
-UChore, a task organizer and assignment tool
+Chore, a task organizer and assignment tool
 
 What :
 - backend for chore-app, for roommates/parents/partners to keep track of chores
@@ -10,9 +10,9 @@ How :
 - Node/Express/Express-Session/Bcrypt/Knex/PostgreSQL
 
 To Run :
-- clone/download this repo && chore-app frontend
-- "npm install"
-- "npm start" ^ for both folders
+- Requires npm (6.10.2) and node (10.16.0)
+- clone/download this repo, the chore-app repo, and the chore-email repo
+- "npm install" for each of the repo's above to get the dependencies required
+- "npm run-script dev" for each to run locally
 
-Currently Working On :
-- backend (async loops & clean-up)
+See it online at https://chore-app-frontend.herokuapp.com
