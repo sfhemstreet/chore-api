@@ -1,36 +1,17 @@
+// env variables
+require('dotenv').config({path: __dirname + '/.env'})
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const knex = require('knex');
-const session = require('express-session');
-const KnexSessionStore = require('connect-session-knex')(session);
-// env variables
-require('dotenv').config({path: __dirname + '/.env'})
+const token = require('./util/token');
 
 // Controllers
 const user = require('./controllers/user/user.js');
 const group = require('./controllers/group/group.js');
 
-
-
-// Constants
-const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-// Process.env
-/*
-const {
-    PORT = 4000,
-    NODE_ENV = 'dev',
-    SESS_SECRET = 'keepitsecretkeepitsafe',
-    SESS_LIFETIME = TWO_HOURS
-} = process.env;
-*/
-
-//const IN_PROD = NODE_ENV === 'prod';
-const IN_PROD = true;
-const SESS_LIFETIME = TWO_HOURS;
-
+// set up express 
 const app = express();
 
 // setup database
@@ -46,32 +27,6 @@ const db = knex({
             database : 'postgres'
         }
 });
-// store for session 
-const pgstore = new KnexSessionStore({
-    knex: db,
-    tablename: 'user_sessions'
-});
-// Set up express-session
-const sess = {
-    store: pgstore,
-    name: 'sid',
-    secret: process.env.SESS_SECRET || 'lol',
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        path: "/",
-        maxAge: SESS_LIFETIME,
-        secure: app.get('env') === 'production' ? true : false,
-        sameSite: 'none',
-        httpOnly: true
-    }
-}
-/*
-if(app.get('env') === 'production'){
-    app.set('trust proxy', 1);
-}
-*/
-app.use(session(sess));
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -94,7 +49,14 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions))
+
 // ROUTES //
+
+// Say Hi
+app.get('/', (req,res) => {
+    return res.json('Hi');
+});
+
 /* --- USER --- */
 // sign in 
 app.post('/signin',  (req,res) => {user.signin(req,res,db,bcrypt)});
@@ -102,6 +64,14 @@ app.post('/signin',  (req,res) => {user.signin(req,res,db,bcrypt)});
 // register 
 app.post('/register', (req,res) => {user.register(req,res,db,bcrypt)});
 app.get('/verify/:string', (req,res) => {user.registerVerification(req,res,db)});
+
+// forgot password init (1) & checkAuth (2)
+app.post('/forgotpassword', (req,res) => {user.initForgotPassword(req,res,db)});
+app.post('/checkauthforgotpassword', (req,res) => {user.checkAuthForgotPassword(req,res,db)})
+
+/* - AUTH ONLY ROUTES -*/
+// Token Auth for all routes below
+app.use(async (req,res,next) => {token.checkToken(req,res,next)})
 
 // get chores
 app.get('/getchores',  (req,res) => {user.getChores(req,res,db)});
@@ -115,9 +85,7 @@ app.delete('/deleteaccount', (req,res) => {user.deleteAccount(req,res,db,bcrypt)
 // change password
 app.patch('/changepassword', (req,res) => {user.changePassword(req,res,db,bcrypt)});
 
-// forgot password
-app.post('/forgotpassword', (req,res) => {user.initForgotPassword(req,res,db)});
-app.post('/checkauthforgotpassword', (req,res) => {user.checkAuthForgotPassword(req,res,db)})
+// forgot password 3 reset
 app.post('/resetforgotpassword', (req,res) => {user.resetForgotPassword(req,res,db,bcrypt)});
 
 /* --- GROUP --- */
@@ -133,10 +101,7 @@ app.delete('/deletegroup', (req,res) => {group.deleteGroup(req,res,db)});
 // edit group - add/remove members / change member permissions
 app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
 
-// Say Hi
-app.get('/', (req,res) => {
-    return res.json('Hi');
-});
+
 
 /* --- Listen --- */
 app.listen(process.env.PORT || 4000, () => {

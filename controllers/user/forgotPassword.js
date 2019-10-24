@@ -1,5 +1,6 @@
 const {forgotPasswordEmail} = require('../email/email');
 const crypto = require("crypto");
+const token = require('../../util/token');
 
 // INIT FORGOT PASSWORD 1/3
 const initForgotPassword = (req,res,db) => {
@@ -45,11 +46,14 @@ const checkAuthForgotPassword = (req,res,db) => {
         if(!loginID[0]){
             return res.status(401).json('Unauthorized');
         }
-        req.session.user_id = loginID[0].login_id;
-        return res.json({
-            success: true,
-            id: loginID[0].login_id
-        });
+        token.createToken(loginID[0].login_id).then(t => {
+            return res.json({
+                success: true,
+                id: loginID[0].login_id,
+                auth: t
+            });    
+        })
+        
     })
     .catch(err => console.log('check auth db error',err))
 }
@@ -58,7 +62,7 @@ const checkAuthForgotPassword = (req,res,db) => {
 const resetForgotPassword = (req,res,db,bcrypt) => {
     const {password, id, str} = req.body;
     
-    if(!req.session.user_id || str === ''){
+    if(!req.user_id || !id || str === '' || password === ''){
         return res.status(401).json('MUST LOGIN');
     }
     

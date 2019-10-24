@@ -1,12 +1,14 @@
+
+
 // user submits chore, update complete_date in DB, increase user score 
 const submitChore = (req,res,db) => {
-    if(req.session.user_id){
+    if(req.user_id){
         db('chores')
         .where('chore_id', '=', req.body.choreID)
         .update({complete_date: 'now()'})
         .then(() => {
             db('users')
-            .where('user_id','=',req.session.user_id)
+            .where('user_id','=',req.user_id)
             .increment('score',1)
             .then(() => {
                 res.status(200).json('Chore Submitted');

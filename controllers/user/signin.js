@@ -1,5 +1,7 @@
+const token = require('../../util/token')
+
 // HANDLE USER SIGN IN
-const signin = (req,res,db,bcrypt) => {
+const signin = async (req,res,db,bcrypt) => {
     const {email, password} = req.body;
     // DO MORE CHECKS HERE
     if(!email || !password){
@@ -25,11 +27,17 @@ const signin = (req,res,db,bcrypt) => {
                             const {email, score, user_name, user_id} = userInfo[0];
                             // data we send to user
                             const user_data = {user_name, email, score};
-                            // set session user_id
-                            req.session.user_id = user_id;
-                            res.status(200).json({
-                                userData: user_data,
-                            }) 
+                            // token we send user
+                            token.createToken(user_id).then(t =>{
+                                res.status(200).json({
+                                    userData: user_data,
+                                    auth: t
+                                }) 
+                            })
+                            .catch(err => {
+                                console.log(err)
+                                res.status(500).json('Error on our end')
+                            })
                         })
                         .catch(error => {
                             console.log(error)
