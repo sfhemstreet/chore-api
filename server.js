@@ -62,11 +62,11 @@ const sess = {
         path: "/",
         maxAge: SESS_LIFETIME,
         secure: app.get('env') === 'production' ? true : false,
-        sameSite: false,
+        sameSite: 'none',
         httpOnly: true
     }
 }
-console.log(app.get('env'))
+
 if(app.get('env') === 'production'){
     app.set('trust proxy', 1);
 }
@@ -132,6 +132,7 @@ app.delete('/deletegroup', (req,res) => {group.deleteGroup(req,res,db)});
 // edit group - add/remove members / change member permissions
 app.patch('/editgroup', (req,res) => {group.editGroup(req,res,db)});
 
+// Say Hi
 app.get('/', (req,res) => {
     return res.json('Hi');
 });
