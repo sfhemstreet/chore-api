@@ -60,8 +60,8 @@ const sess = {
     resave: false,
     cookie: {
         path: "/",
-        maxAge: SESS_LIFETIME,
-        secure: app.get('env') === 'production' ? true : false,
+        maxAge: 3 * 24 * 60 * 60 * 1000,
+        secure: app.get('env') === 'production' ? false : false,
         sameSite: 'none',
         httpOnly: true
     }
