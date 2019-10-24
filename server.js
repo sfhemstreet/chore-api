@@ -27,35 +27,7 @@ const db = knex({
             database : 'postgres'
         }
 });
-<<<<<<< HEAD
-// store for session 
-const pgstore = new KnexSessionStore({
-    knex: db,
-    tablename: 'user_sessions'
-});
-// Set up express-session
-const sess = {
-    store: pgstore,
-    name: 'sid',
-    secret: process.env.SESS_SECRET || 'lol',
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        path: "/",
-        maxAge: 3 * 24 * 60 * 60 * 1000,
-        secure: app.get('env') === 'production' ? true : false,
-        sameSite: 'None',
-        httpOnly: true
-    }
-}
-/*
-if(app.get('env') === 'production'){
-    app.set('trust proxy', 1);
-}
-*/
-app.use(session(sess));
-=======
->>>>>>> d17af139404a1de4baedfbf30509853a60ae36e9
+
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
