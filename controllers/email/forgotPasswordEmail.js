@@ -3,7 +3,7 @@ const token  = require('../../util/token');
 
 const forgotPasswordEmail = async (email,string) => {
     const toke = await token.createToken(email).catch(err => console.log(err))
-    fetch('process.env.EMAIL_URLforgotpassword', { 
+    fetch(`${process.env.EMAIL_URL}forgotpassword`, { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

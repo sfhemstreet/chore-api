@@ -4,11 +4,11 @@ const {forgotPasswordEmail} = require('../email/email');
 
 // CHANGE PASSWORD - auth user with oldPassword and update db to newPassword
 const changePassword = (req,res,db,bcrypt) => {
-    if(req.session.user_id){
+    if(req.user_id){
         const {oldPassword, newPassword} = req.body;
         // compares db hash pw to sent in pw
         db.select('hash').from('login')
-        .where('login_id', '=', req.session.user_id)
+        .where('login_id', '=', req.user_id)
         .then(data => {
             bcrypt.compare(oldPassword, data[0].hash)
             .then(pass => {   
@@ -18,7 +18,7 @@ const changePassword = (req,res,db,bcrypt) => {
                             return res.status(500).json('Error on our end')
                         }
                         return db('login')
-                        .where('login_id','=',req.session.user_id)
+                        .where('login_id','=',req.user_id)
                         .update({ hash: hashedPW })
                         .then(() => res.status(200).json('Password Changed'))
                         .catch(err => console.log(err))

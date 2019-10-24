@@ -2,7 +2,7 @@ const {newGroupEmail} = require('../email/email');
 
 // EDIT GROUP - change permissions, add/remove members
 const editGroup = (req,res,db) => {
-    if(req.session.user_id){
+    if(req.user_id){
         const {groupID, groupName, newMembers, removedMembers, updatedMembers} = req.body;
         // insert new members
         for(let m in newMembers){

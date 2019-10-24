@@ -3,7 +3,7 @@ const {addedChoresEmail} = require('../email/email');
 
 // ADD CHORES TO EXISTING GROUP
 const addChores = (req,res,db) => {
-    if(req.session.user_id){
+    if(req.user_id){
         const {groupID, chores, emails} = req.body;
         // insert chores into DB   
         for(let c in chores){
