@@ -28,6 +28,7 @@ const db = knex({
         }
 });
 
+
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
