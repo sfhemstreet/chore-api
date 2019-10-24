@@ -2,18 +2,18 @@ const {deleteAccountEmail} = require('../email/email');
 
 // DELETE ACCOUNT - auth user with given password then delete account
 const deleteAccount = (req,res,db,bcrypt) => {
-    if(req.session.user_id){
+    if(req.user_id){
         const {password} = req.body;
         // compares db hash pw to sent in pw
         db.select('hash').from('login')
-        .where('login_id', '=', req.session.user_id)
+        .where('login_id', '=', req.user_id)
         .then(data => {
             bcrypt.compare(password, data[0].hash)
             .then(pass => {   
                 if(pass){
                     return db.select('email','user_name')
                     .from('users')
-                    .where('user_id','=',req.session.user_id)
+                    .where('user_id','=',req.user_id)
                     .then(data => {
                         db('users_in_groups')
                         .where('user_email','=',data[0].email)
@@ -24,7 +24,7 @@ const deleteAccount = (req,res,db,bcrypt) => {
                             .del()
                             .then(() => {
                                 db('login')
-                                .where('login_id','=',req.session.user_id)
+                                .where('login_id','=',req.user_id)
                                 .del()
                                 .then(() => {
                                     res.status(200).json('Account Deleted');

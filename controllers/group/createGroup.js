@@ -4,11 +4,11 @@ const {newGroupEmail} = require('../email/email');
 // CREATE NEW GROUP
 const createGroup = async (req,res,db) => {
     try{
-        if(req.session.user_id){
+        if(req.user_id){
             const {groupName, users, chores} = req.body;
             // check if group exists already
             db.select('group_name').from('groups')
-            .where('created_by','=',req.session.user_id).andWhere('group_name','=',groupName)
+            .where('created_by','=',req.user_id).andWhere('group_name','=',groupName)
             .then(result => {
                 if(result[0]){
                     return res.status(400).json('Group Already Exists')
@@ -17,12 +17,12 @@ const createGroup = async (req,res,db) => {
                 // add all users to users_in_groups table
                 // add new chores to chores table
                 // email all all group members that they are part of a new group
-                db.select('email').from('users').where('user_id', '=', req.session.user_id)
+                db.select('email').from('users').where('user_id', '=', req.user_id)
                 .then(users_email => {
                     // insert the new group
                     db.insert({
                         group_name : groupName,
-                        created_by : req.session.user_id,
+                        created_by : req.user_id,
                         created_by_email : users_email[0].email,
                         created_date : todaysDate()
                     }) 
